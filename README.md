@@ -34,12 +34,13 @@ Version History:
 *----------------------*
 
 Future Items:
-[*] ADMIN TOOLS - SUSPICIOUS STATS ALERT
+
+[x] ADMIN TOOLS - SUSPICIOUS STATS ALERT
 [BUG] proper contrast ratio conversion for web page
-[*] Check web form refresh arg for overflow (or # digits)
-[*] replace logo w/ instructions to connect to wifi manager 
-[*] add wifi disconnected auto-restart ESP
-[*] add Debug web page w/ SDK version, ESP SDK VERSION #, FREE HEAP, UPTIME, ETC.
-[*] Graphics improvements:
-	[*]	Icons for CTF/OB
-	[*] Rush: highlight/outline current MCOM 
+[x] Check web form refresh arg for overflow (or # digits)
+[x] replace logo w/ instructions to connect to wifi manager 
+[x] add wifi disconnected auto-restart ESP
+[x] add Debug web page w/ SDK version, ESP SDK VERSION #, FREE HEAP, UPTIME, ETC.
+[x] Graphics improvements:
+	[x]	Icons for CTF/OB
+	[x] Rush: highlight/outline current MCOM 
