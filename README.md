@@ -11,7 +11,8 @@ Features:
 
 
 
-Versin History:
+Version History:
+
 ********* v1.2 **********
 - Fixed new bug where Battlelog doesn't always immediately return 'Rush' info at round start.
 - Cleaned up code (removed unsued files, organized DEFINEs)
