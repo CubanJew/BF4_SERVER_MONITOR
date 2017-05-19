@@ -12,18 +12,19 @@ Features:
 
 
 Version History:
-********* v1.2 (5/18/17) ****
+
+********* v1.2 (5/18/17) *********
 - Changed error code behavior. Force refresh in 3 seconds after error. Also give WiFiClient 3 tries to connect before returning error code 2
 - Prevent Web Control Panel root page from being cached. 
 - Added diagnostics page to Web Control Panel
 - Expanded some game modes to 3 letters (TD->TDM, CF->CTF, DO->DOM)
 
-********* v1.2 **************
+********* v1.2 ******************
 - Fixed new bug where Battlelog doesn't always immediately return 'Rush' info at round start.
 - Cleaned up code (removed unsued files, organized DEFINEs)
 - Fixed bug w/ EEPROM default values integrity check (upon FW flash).
 
-********* v1.1 **************
+********* v1.1 *****************
 - Fixed rank divide by 0 bug [WEB_JSON_PARSE.ino]
 - Password protected wifi configuratino portal (password = "NWG")
 - Display firmware version # on web page
@@ -32,7 +33,7 @@ Version History:
 - Fixed stability issues with WIFI client (improved error handling)
 - Automatically save/load config settings to/from EEPROM (serverID, contrast, refresh)
 
-********* v1.0  **************
+********* v1.0  ****************
 - Initial Release
 
 Future Items:
