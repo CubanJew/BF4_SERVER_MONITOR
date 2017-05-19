@@ -12,6 +12,7 @@ void oled_init() {
 }
 
 void oled_displayError(uint8_t err) {
+  timeElapsed = settings.refresh - 3000;  // force next refresh interval in 3 seconds.
   display.clear();
   display.drawString(0, 0, String("Error: " + String(err)));
   display.display();
@@ -164,7 +165,7 @@ if(game.rushStarted) {
     display.drawProgressBar(GFX_T_BOX_X, GFX_T_BOX_Y, GFX_BOX_WIDTH, GFX_BOX_HEIGHT, (game.score.T1 * 100.0 / game.scoreMax.T1));   // was 20 25 85 8
     display.setTextAlignment(TEXT_ALIGN_RIGHT);
     display.drawString(GFX_MAX_X, GFX_T_BOX_Y, String(game.score.T1));   // was 128 23
-  } 
+  }
 }
 
 void dispDM() {   // kills/killsMax

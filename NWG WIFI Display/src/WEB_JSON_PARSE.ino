@@ -20,12 +20,16 @@ byte fetch_json()
   const char * jsonHOST = "keeper.battlelog.com";   //JSON_HOST;
   const char * localBF4ServerID =  settings.serverID;   //const char * localBF4ServerID =  BF4ServerID.c_str();  //JSON_URL;
 
-  // Use WiFiClient class to create TCP connections
+  // Use WiFiClient class to create TCP connections (7 attempts)
   WiFiClient client;
-  if (!client.connect(jsonHOST, 80)) {
+  delay(10);
+  for (int i=0; i<4; i++) {
+    if (client.connect(jsonHOST, 80))  break;
     Serial.println("connection failed");
-    return STATUS_JSON_ERROR_HTTP_CONNECT_FAIL;
+    delay(100);
+    if (i == 3) return STATUS_JSON_ERROR_HTTP_CONNECT_FAIL;
   }
+
   // This will send the request to the server
   client.print(String("GET /snapshot/") + localBF4ServerID + " HTTP/1.1\r\n" + "Host: " + jsonHOST + "\r\n" + "Connection: close\r\n\r\n");
   unsigned long timeout = millis();

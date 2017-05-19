@@ -7,6 +7,8 @@
 #include "parser/ExampleParser.h"
 #include "includes/HTTP_SERVER.h"
 
+ADC_MODE(ADC_VCC); // added for v1.2.01 (5/18/17) for diagnostics page  //#include "user_interface.h"
+
 // ESP8266-12E NWG PCB:
 SSD1306   display(0x3C, 14, 12);
 OLEDDisplayUi ui     ( &display );
@@ -27,6 +29,8 @@ void setup(void) {
   wifiManager.autoConnect("NWG Server");    //wifiManager.autoConnect("NWG Server", "NWG12345");
   HTTP_server_init(); // start HTTP server
   display.clear(); display.drawString(0, 0, "Config IP:"); display.drawString(0, 20, WiFi.localIP().toString()); display.display();
+
+
 }
 
 void loop() {

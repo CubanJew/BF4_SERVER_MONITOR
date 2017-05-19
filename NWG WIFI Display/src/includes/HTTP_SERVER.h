@@ -7,5 +7,8 @@ extern ESP8266WebServer server;
 void HTTP_server_init();
 void handle_Root();
 void handle_Save();
+void handle_debugInfo();
+String getRSSIQuality(long rssi);
+String getUpTime();
 
 #endif
