@@ -14,9 +14,9 @@ Features:
 Version History:
 
 ********* v1.2 (5/18/17) *********
-- Changed error code behavior. Force refresh in 3 seconds after error. Also give WiFiClient 3 tries to connect before returning error code 2
-- Prevent Web Control Panel root page from being cached. 
-- Added diagnostics page to Web Control Panel
+- Enhanced error handling. Refresh 3 seconds after error. Also give WiFiClient 3 tries to connect before returning error code 2
+- Prevent browser from caching Control Panel root page. 
+- Added diagnostics page to Control Panel
 - Expanded some game modes to 3 letters (TD->TDM, CF->CTF, DO->DOM)
 
 ********* v1.2 ******************
