@@ -1,9 +1,10 @@
 # BF4_SERVER_MONITOR
 
-A standalone compact screen that connects to your home WiFi network and displays NWG BF4 server information in near-real time (refreshes every 30 seconds) using JSON feed from Battlelog live scoreboard.
+A standalone compact screen that connects to your home WiFi network and displays Battlefield 4 server information in near-real time (utilizing BattleLog live scoreboard JSON feed) and weather information (utilizing wunderground API)
 
 Features:
 - Displays key BF4 server information in near real-time.
+- Displays weather current conditions and 3-day forecast.
 - Web Control Panel - customize various setting through your browser, such as serverID, refresh interval, and display contrast.
 - Ability to update firmware through your web browser (OTA), without the need for any special hardware tools. This provides flexibility for rolling out new features, or repurposing the unit for a totally different use.
 - 3 spare GPIOs reserved for future hardware interfaces. 
