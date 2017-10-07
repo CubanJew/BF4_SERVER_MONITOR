@@ -12,8 +12,16 @@ Features:
 
 
 Version History:
+********* v1.2.30 (10/07/17) *********
+- Introduced display ‘widgets’ concept. 
+- Created weather forecast and current weather conditions widgets
+- Added firmware auto-update engine (opt-out). Checks daily and within 5 minutes of power-up.
+- Added display message upon failure to join WiFi network, instructing user to connect to AP to configure.
+- Unit displays warning message not to power-off device during firmware update.
+- Re-arranged Web Control Panel layout and added new content.
+- Added auto-hide BF4 widget display is server empty option.
 
-********* v1.2 (5/18/17) *********
+********* v1.2.01 (5/18/17) *********
 - Enhanced error handling. Refresh 3 seconds after error. Also give WiFiClient 3 tries to connect before returning error code 2
 - Prevent browser from caching Control Panel root page. 
 - Added diagnostics page to Control Panel
