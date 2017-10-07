@@ -12,6 +12,7 @@ Features:
 
 
 Version History:
+
 ********* v1.2.30 (10/07/17) *********
 - Introduced display ‘widgets’ concept. 
 - Created weather forecast and current weather conditions widgets
