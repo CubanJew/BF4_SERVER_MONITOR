@@ -3,9 +3,8 @@
 A standalone compact screen that connects to your home WiFi network and displays Battlefield 4 server information in near-real time (utilizing BattleLog live scoreboard JSON feed) and weather information (utilizing wunderground API)
 
 Features:
-- Displays key BF4 server information in near real-time.
-- Displays weather current conditions and 3-day forecast.
-- Web Control Panel - customize various setting through your browser, such as serverID, refresh interval, and display contrast.
+- Pick and choose what display widgets you want shown on the unit. Display widgets include: BF4 server live scoreboard, BF4 server team stats, current weather conditions, and 3-day weather forecast lookahead.
+- Web Control Panel allows you to customize display widgets and change global settings through your browser.
 - Ability to update firmware through your web browser (OTA), without the need for any special hardware tools. This provides flexibility for rolling out new features, or repurposing the unit for a totally different use.
 - 3 spare GPIOs reserved for future hardware interfaces. 
 - Dynamic WIFI Manager - creates WIFI Access Point to allow configuring to your home Wi-Fi network
