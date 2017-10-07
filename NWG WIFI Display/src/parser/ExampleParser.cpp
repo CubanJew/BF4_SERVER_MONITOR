@@ -16,7 +16,7 @@ bool nextValGrab = false; // flag set by key for whether value is of value
 // note: removed "CarrierAssaultLarge" from depdth 2 keyword search array
 const char * depth_2_keywordSearch = "currentMap waitingPlayers roundTime gameMode conquest rush captureTheFlag carrierAssault deathmatch teamInfo";   // ** TODO: OPTIMIZE. EASIER TO PROVIDE BLACKLIST THAN WHITELIST   //const char * depth_4_keywordSearch = "tickets ticketsMax bases basesMax flags flagsMax destroyedCrates carrierHealth kills killsMax faction";   // ** TODO: OPTIMIZE. Will kills be pickedup by killsMax? Same for others...
 const char * depth_4_keywordSearch = "ticketsMax basesMax flagsMax destroyedCrates carrierHealth killsMax faction";   // ** TODO: OPTIMIZE. Will kills be pickedup by killsMax? Same for others...
-const char * depth_6_keywordSearch = "rank kills";
+const char * depth_6_keywordSearch = "rank kills deaths";
 /*
   Score structure:
     OB/CQ/AS/DO/CL  ->   "conquest"         (tickets/ticketsMax)
@@ -96,7 +96,7 @@ void ExampleListener::key(String key) {
       if (strstr(depth_2_keywordSearch, key.c_str()) != NULL) {
         if (key == "currentMap")          dKeys[2] = KEY_2_CURRENTMAP;
         else if (key == "waitingPlayers") dKeys[2] = KEY_2_WAITINGPLAYERS;
-        else if (key ==  "roundTime")     dKeys[2] = KEY_2_ROUNDTIME;
+        else if (key == "roundTime")      dKeys[2] = KEY_2_ROUNDTIME;
         else if (key == "gameMode")       dKeys[2] = KEY_2_GAMEMMODE;
         else if (key == "conquest")       dKeys[2] = KEY_2_CONQUEST;
         else if (key == "rush")           {dKeys[2] = KEY_2_RUSH;   lGame->rushStarted = true;}
@@ -142,9 +142,10 @@ void ExampleListener::key(String key) {
     case 6:
       if (strstr(depth_6_keywordSearch, key.c_str()) != NULL) {
         nextValGrab = true;
-        if (key == "rank")            dKeys[6] = KEY_6_RANK;
-        else if (key = "kills")       dKeys[6] = KEY_6_KILLS;
-        else                          dKeys[6] = KEY_INVALID;
+        if (key == "rank")          dKeys[6] = KEY_6_RANK;
+        else if (key == "kills")    dKeys[6] = KEY_6_KILLS;
+        else if (key == "deaths")   dKeys[6] = KEY_6_DEATHS;
+        else                        dKeys[6] = KEY_INVALID;
       }
       break;
 
@@ -231,6 +232,8 @@ void ExampleListener::value(String value) {
               lGame->stats.rankSum.T1 += iVal;
           } else if (dKeys[6] == KEY_6_KILLS) {
               lGame->stats.killSum.T1 += iVal;
+          } else if (dKeys[6] == KEY_6_DEATHS) {
+              lGame->stats.deathSum.T1 += iVal;
           }
           // TEAM 2
         } else if (dKeys[3] == KEY_3_2) {
@@ -239,6 +242,8 @@ void ExampleListener::value(String value) {
               lGame->stats.rankSum.T2 += iVal;
           } else if (dKeys[6] == KEY_6_KILLS) {
               lGame->stats.killSum.T2 += iVal;
+          } else if (dKeys[6] == KEY_6_DEATHS) {
+              lGame->stats.deathSum.T2 += iVal;
           }
         }
         break;
@@ -266,7 +271,7 @@ void ExampleListener::startArray() {}
 void ExampleListener::endArray() {}
 
 // consider utilizing 2nd argument for team #
-
+// TODO: IS THIS EVEN NEEDED ANYMORE???
 int ExampleListener::getTeamStat(uint8_t stat)
 {
   switch (stat)
@@ -289,6 +294,12 @@ int ExampleListener::getTeamStat(uint8_t stat)
     case STAT_PLAYERCOUNT_T2:
       return lGame->stats.playerCount.T2;
       break;
+    case STAT_DEATHSUM_T1:
+      return lGame->stats.deathSum.T1;
+      break;
+    case STAT_DEATHSUM_T2:
+      return lGame->stats.deathSum.T2;
+      break;
     default:
       return 0;
       break;
@@ -305,4 +316,6 @@ void ExampleListener::resetStats()
   lGame->stats.killSum.T2 = 0;
   lGame->stats.rankSum.T1 = 0;
   lGame->stats.rankSum.T2 = 0;
+  lGame->stats.deathSum.T1 = 0;
+  lGame->stats.deathSum.T2 = 0;
 }

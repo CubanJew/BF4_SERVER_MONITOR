@@ -1,40 +1,144 @@
 #include <Arduino.h>
+#include "includes/OLED.h"
 
-// xbm image conversion   http://blog.squix.ch/2015/05/esp8266-nodemcu-how-to-create-xbm.html   // https://github.com/squix78/esp8266-oled-ssd1306
+Demo frames[] = {draw_bf4_data, draw_bf4_stats, draw_weather_current, draw_weather_forecast};
+
 void oled_init() {
   display.init();
   display.flipScreenVertically();
   display.setContrast(0x00);
   display.drawXbm(0,  0, NWG_LOGO_width, NWG_LOGO_height, NWG_LOGO_bits);
   display.display();
-  display.setContrast(settings.contrast);
-  //delay(2000);
+  display.setContrast(cfg_n.contrast);
+}
+
+void draw_bf4_stats () {
+  display.clear();
+  char faction[3] = {' ', ' ', '\0'};
+
+  strcpy_P(faction, (char *)pgm_read_dword(&(STR_TABLE_FACTIONS[game.faction.T1])));
+  display.drawString(60, 0, faction);
+  strcpy_P(faction, (char *)pgm_read_dword(&(STR_TABLE_FACTIONS[game.faction.T2])));
+  display.drawString(100, 0, faction);
+
+  display.drawString(0, 16, "Kills");
+  display.drawString(0, 32, "K/D (avg)");
+  display.drawString(0, 48, "Rank (avg)");
+
+  display.drawHorizontalLine(0,11,128);
+  display.drawString((stats.kills.team == TEAM_1 ? 60 : 100), 16, "+" + String(abs(stats.kills.val)));
+  if(stats.kd.team != TEAM_NA)     display.drawString((stats.kd.team == TEAM_1 ? 60 : 100), 32, "+" + String(stats.kd.val));
+  if(stats.rank.team != TEAM_NA)   display.drawString((stats.rank.team == TEAM_1 ? 60 : 100), 48, "+" + String(stats.rank.val));
+  display.display();
+}
+
+void draw_weather_current() {
+  int x,y=10;
+  display.clear();
+  display.setFont(ArialMT_Plain_10);
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  display.drawString(50 + x, 5 + y, weather.now.weather); //display.drawString(60 + x, 5 + y, weather.now.icon); //wunderground.getWeatherText()
+
+  display.setFont(ArialMT_Plain_24);
+  String temp;
+  if(cfg_n.weather.isMetric) {  //if(weather.isMetric) {
+    temp = String(fToC(weather.now.feelslike_f)) + "°C";
+  } else {
+    temp = String(weather.now.feelslike_f) + "°F";
+  }
+  display.drawString(50 + x, 15 + y, temp);
+  int tempWidth = display.getStringWidth(temp);
+
+  display.setFont(Meteocons_Plain_42);
+  String weatherIcon = getMeteoconIcon(weather.now.icon);
+  int weatherIconWidth = display.getStringWidth(weatherIcon);
+  display.drawString(22 + x - weatherIconWidth / 2, 05 + y, weatherIcon);
+  display.display();
+  display.setFont(ArialMT_Plain_10);
+}
+
+void draw_weather_forecast() {
+  int x=0;
+  int y=4;
+  display.clear();
+  drawForecastDetails(x, y, 0);
+  drawForecastDetails(x + 44, y, 1);
+  drawForecastDetails(x + 88, y, 2);
+
+  // draw footer
+  display.setFont(ArialMT_Plain_10);
+  display.setTextAlignment(TEXT_ALIGN_RIGHT);   //display.setTextAlignment(TEXT_ALIGN_CENTER);
+  display.drawHorizontalLine(0, 51, 128);
+  String tempNow;
+  if(cfg_n.weather.isMetric) {//if(weather.isMetric) {
+    tempNow = String(fToC(weather.now.feelslike_f)) + " °C";
+  } else {
+    tempNow = String(weather.now.feelslike_f) + " °F";
+  }
+  display.drawString(128, 52, tempNow);
+  int tempNowLength = display.getStringWidth(tempNow);
+
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  display.drawString(1, 52, String(weather.now.relative_humidity) + " %RH");
+
+  display.setTextAlignment(TEXT_ALIGN_CENTER); // was center
+  display.setFont(Meteocons_Plain_10);
+  String weatherIcon = getMeteoconIcon(weather.now.icon);
+  int weatherIconWidth = display.getStringWidth(weatherIcon);
+  display.drawString(128-tempNowLength-weatherIconWidth-2, 53, weatherIcon); // x was 77
+
+  display.setFont(ArialMT_Plain_10);
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  display.display();
+}
+
+void drawForecastDetails(int x, int y, int dayIndex) {
+  display.setTextAlignment(TEXT_ALIGN_CENTER);
+  display.setFont(ArialMT_Plain_10);
+  String day = weather.forecast.day[dayIndex];  //wunderground.getForecastTitle(dayIndex).substring(0, 3);
+  day.toUpperCase();
+  display.drawString(x + 20, y, day);
+
+  display.setFont(Meteocons_Plain_21);
+  display.drawString(x + 20, y + 12, getMeteoconIcon(weather.forecast.icon[dayIndex]) ); //wunderground.getForecastIcon(dayIndex)
+
+  display.setFont(ArialMT_Plain_10);
+  String hiLo;
+  if(cfg_n.weather.isMetric) {//if(weather.isMetric) {
+    hiLo = String(fToC(weather.forecast.high_f[dayIndex])) + "|" + String(fToC(weather.forecast.low_f[dayIndex]));
+  } else {
+    hiLo = String(weather.forecast.high_f[dayIndex]) + "|" + String(weather.forecast.low_f[dayIndex]);
+  }
+  display.drawString(x + 20, y + 34, hiLo);
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
 }
 
 void oled_displayError(uint8_t err) {
-  timeElapsed = settings.refresh - 3000;  // force next refresh interval in 3 seconds.
+  timeElapsed_BF4 = cfg_n.bf4.refresh - 3000; //settings.refresh - 3000;  // force next refresh interval in 3 seconds.
   display.clear();
   display.drawString(0, 0, String("Error: " + String(err)));
   display.display();
 }
 
-#define GFX_MAX_X           128  // OLED max dimensions
-#define GFX_MAX_Y           64
-#define GFX_CENTER_X        64
+void oled_FW_update_msg() {
+  display.clear();
+  display.drawStringMaxWidth(1, 1, 128, F("Updating firmware."));
+  display.drawStringMaxWidth(1, 20, 128, F("Do NOT power off device!"));
+  display.display();
+}
+void oled_display_msg(String msg, int delayMS) {
+  display.clear();
+  display.drawStringMaxWidth(1, 1, 128, msg);
+  delay(delayMS);
+}
 
-#define GFX_T_BOX_X          19  // TOP progress bar
-#define GFX_T_BOX_Y          20
-#define GFX_B_BOX_X          19  // BOTTOM progress bar
-#define GFX_B_BOX_Y          38
-#define GFX_BOX_WIDTH       85  // progress bar dimensins
-#define GFX_BOX_HEIGHT      12
-
-#define GFX_FOOTER_TIME_X   1   // footer:  round time
-#define GFX_FOOTER_Y        54
-#define GFX_FACTION_LABEL_X 1
-
-#define GFX_CIRCLE_RADIUS   7  // for mcom/flag icons
-
+void oled_draw_noWiFiNetwork(String pSSID) {
+  display.clear();
+  display.drawStringMaxWidth(1, 1, 128, F("Failed to join WiFi network, please configure WiFi settings. Join WiFi AP: "));
+  display.drawString(10, 40, pSSID);
+  display.drawString(1, 52, F("Address: 192.168.4.1"));
+  display.display();
+}
 
 //  display FOOTER: time, mode, # players
 // todo: OPTMIZE font change commands
@@ -48,11 +152,6 @@ void draw_headerFooter() {
   display.setFont(ArialMT_Plain_10);
 
   // FOOTER
-  /*  strcpy_P(str_buffer, (char *)pgm_read_dword(&(STR_TABLE_MODES[game.mode])));
-  String strFooter = String(str_buffer) + " | " + String((int)game.players) + " | " + String(game.roundTime / 60) + "m";
-  display.setTextAlignment(TEXT_ALIGN_LEFT);
-  display.drawString(GFX_FOOTER_TIME_X, GFX_FOOTER_Y, strFooter);*/
-
   // ... time ...
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   display.drawString(GFX_FOOTER_TIME_X, GFX_FOOTER_Y, (game.roundTime % 60 < 10) ? (String((game.roundTime / 60)) + ":0" + String((game.roundTime % 60))) : String((game.roundTime / 60)) + ":" + String((game.roundTime % 60))); // was 35
@@ -69,34 +168,6 @@ void draw_headerFooter() {
       display.drawString(GFX_MAX_X, GFX_FOOTER_Y, String((int)game.players));
 
   display.setTextAlignment(TEXT_ALIGN_LEFT);
-
-  // ... team stats comparison (kill difference & average rank)
-  // NEED TO CHECK THAT WE HAVE VALID GAME MODE GOING??
-/*
-  int killDiff = game.stats.killSum.T1 - game.stats.killSum.T2;
-  int rankDiff = ((double)game.stats.rankSum.T1 / (double)game.stats.playerCount.T1) - ((double)game.stats.rankSum.T2 / (double)game.stats.playerCount.T2);
-  String str = "K";
-  if (killDiff > 0)
-    str += "+" + String(killDiff);
-  else if (killDiff = 0)
-    str += "=";
-  else
-    str += String(killDiff);
-  str += " R";
-
-  if (rankDiff > 0)
-    str += "+" + String(rankDiff);
-  else if (rankDiff = 0)
-    str += "=";
-  else
-    str += String(rankDiff);
-
-  display.setTextAlignment(TEXT_ALIGN_RIGHT);
-  display.drawString(GFX_MAX_X, GFX_FOOTER_Y, str);
-
-  display.setTextAlignment(TEXT_ALIGN_LEFT);
-  display.setFont(ArialMT_Plain_10);    // NOT NEEDED?*/
-
 }
 
 void draw_factionLabels() {
@@ -182,12 +253,10 @@ void dispDM() {   // kills/killsMax
 
 
 // display Game Data (mode specific)
-// TODO:  MOVE THE FACTION PRINTS OUT TO BE COMMON
-void displayGameData(int statusCode) {
-  timeElapsed = 0;
+void draw_bf4_data() {
   display.clear();
 
-  if (statusCode == STATUS_JSON_SUCCESS) {  // if obtained valid BF4 round information from battlelog...
+  if (game.return_status == STATUS_JSON_SUCCESS) {  // if obtained valid BF4 round information from battlelog...
     // draw map, mode, time, players
     draw_headerFooter();
 
@@ -216,5 +285,10 @@ void displayGameData(int statusCode) {
     display.display();
     display.setTextAlignment(TEXT_ALIGN_LEFT);
   } else
-      oled_displayError(statusCode);
+      oled_displayError(game.return_status);
+}
+
+// convert fahrenheit to celcius
+int fToC(double f) {
+  return (f - 32) * (5.0/9);
 }
