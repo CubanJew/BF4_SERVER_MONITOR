@@ -1,15 +1,73 @@
 #include <Arduino.h>
 #include "includes/OLED.h"
 
-Demo frames[] = {draw_bf4_data, draw_bf4_stats, draw_weather_current, draw_weather_forecast};
+Demo frames[] = {draw_bf4_data, draw_bf4_stats, draw_weather_current, draw_weather_forecast, draw_BF1};
 
 void oled_init() {
   display.init();
   display.flipScreenVertically();
   display.setContrast(0x00);
-  display.drawXbm(0,  0, NWG_LOGO_width, NWG_LOGO_height, NWG_LOGO_bits);
+  display.drawXbm(0, 0, NWG_LOGO_width, NWG_LOGO_height, NWG_LOGO_bits);
   display.display();
   display.setContrast(cfg_n.contrast);
+}
+
+void draw_BF1() {
+  display.clear();
+  display.setFont(ArialMT_Plain_10);
+  display.setColor(WHITE);
+  // data validity check
+  if (!BF1_GAME.g1.valid  && !BF1_GAME.g2.valid) {
+    display.drawStringMaxWidth( 0, 20, 128, F("Invalid BF1 server ID or no data returned."));
+    display.display();
+    return;
+  }
+  // server # 1 ...
+  char map[20];
+  if(BF1_GAME.g1.valid ) {
+    //map name
+    display.setTextAlignment(TEXT_ALIGN_CENTER);
+    strcpy_P(map, (char *)pgm_read_dword(&(STR_TABLE_BF1_MAPS[BF1_GAME.g1.map])));
+    map[19] = '\0';
+    display.drawString(64, 0, map);
+
+    //player count
+    display.setTextAlignment(TEXT_ALIGN_LEFT);
+    display.drawString(0, 16, "0");
+    display.setTextAlignment(TEXT_ALIGN_RIGHT);
+    display.drawString(128, 16, String(BF1_GAME.g1.playersMax));
+    display.drawProgressBar(10, 16, 95, 12, (BF1_GAME.g1.players * 100.0 /BF1_GAME.g1.playersMax));//display.drawProgressBar(10, 16, 100, 12, (BF1_GAME.g1.players * 100.0 /BF1_GAME.g1.playersMax));
+    // bug fix for progressbar extra pixels bug
+    display.setColor(BLACK);
+    display.fillRect(10, 29, 95, 4);
+    display.setColor(WHITE);
+
+    //game mode
+    display.setTextAlignment(TEXT_ALIGN_LEFT);
+    strcpy_P(map, (char *)pgm_read_dword(&(STR_TABLE_BF1_MODES[BF1_GAME.g1.mode])));
+    map[3] = '\0';
+    String s = String(F("NWG #1: ")) + map + String(F(" -  ")) + String(BF1_GAME.g1.players) + " / " + String(BF1_GAME.g1.playersMax);
+    if(BF1_GAME.g1.queue > 0)
+      s += " [+" + String(BF1_GAME.g1.queue) + "]";
+    display.drawString(0, 32, s);
+
+  }
+  // SERVER # 2 ...
+  if (BF1_GAME.g2.valid) {
+    //map name
+    display.drawLine(0, 48, 128, 48);
+    strcpy_P(map, (char *)pgm_read_dword(&(STR_TABLE_BF1_MAPS[BF1_GAME.g2.map])));
+    map[19] = '\0';
+
+    String s = String(F("NWG #2: "));
+    strcpy_P(map, (char *)pgm_read_dword(&(STR_TABLE_BF1_MODES[BF1_GAME.g2.mode])));
+    map[3] = '\0';  //mode
+    s += String(map) + " -  " + String(BF1_GAME.g2.players) + " / " + String(BF1_GAME.g2.playersMax);
+    display.drawString(0, 54, s);
+  }
+    display.display();
+
+
 }
 
 void draw_bf4_stats () {
@@ -122,6 +180,9 @@ void oled_displayError(uint8_t err) {
 
 void oled_FW_update_msg() {
   display.clear();
+  display.setFont(ArialMT_Plain_10);
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+
   display.drawStringMaxWidth(1, 1, 128, F("Updating firmware."));
   display.drawStringMaxWidth(1, 20, 128, F("Do NOT power off device!"));
   display.display();
@@ -129,6 +190,7 @@ void oled_FW_update_msg() {
 void oled_display_msg(String msg, int delayMS) {
   display.clear();
   display.drawStringMaxWidth(1, 1, 128, msg);
+  display.display();
   delay(delayMS);
 }
 

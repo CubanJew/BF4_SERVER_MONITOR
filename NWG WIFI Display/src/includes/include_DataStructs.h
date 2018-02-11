@@ -31,7 +31,21 @@ typedef struct {
 // ... END WEATHER
 
 
+// BF1 GAME DATA ...
+typedef struct {
+	uint8_t	map;
+	uint8_t players;
+	uint8_t playersMax;
+	uint8_t queue;
+	uint8_t mode;
+	bool valid = false;
+} BF1_GAME_DATA_SERVER;		//}	BF1_GAME_DATA;
 
+typedef struct {
+	BF1_GAME_DATA_SERVER g1;
+	BF1_GAME_DATA_SERVER g2;
+}	BF1_GAME_DATA;
+// ... END BF1 GAME DATA
 
 // BF4 game data ...
 typedef struct {
@@ -65,7 +79,6 @@ typedef struct {
   bool rushStarted; // whether or not rush round has started. lately Battlelog doesn't always immediately return 'rush' JSON object on new rush map (only have 'teamInfo' object)
 	int return_status=5;
 } GameData;
-
 // ... end BF4 game data
 
 

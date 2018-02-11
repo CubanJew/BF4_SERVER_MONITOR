@@ -8,7 +8,10 @@
 
 #include "includes/OLED.h"
 
-
+/**
+Checks if firmware update available
+* @ return TRUE if firmware update available.
+*/
 bool firmware_update_check () {
   const char* FW_check_host = "cubanjew.a2hosted.com";
   WiFiClient client;
@@ -30,6 +33,9 @@ bool firmware_update_check () {
   return false;
 }
 
+/**
+Updates firmware. firmware_update_check() should be called prior.
+*/
 void firmware_update() {
   oled_FW_update_msg();
   t_httpUpdate_return ret = ESPhttpUpdate.update("http://cubanjew.a2hosted.com/WIFI_OLED/FW/FW_check.php?mac_id=" + WiFi.macAddress() + "&FW_v=" + String(FIRMWARE_VERSION) + "&dl=1");

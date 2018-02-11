@@ -1,6 +1,6 @@
 #include "includes/HTTP_SERVER.h"
 
-const char FIRMWARE_VERSION[] PROGMEM   = "1.2.30"; // formerly w/out the static
+const char FIRMWARE_VERSION[] PROGMEM   = "1.2.31"; // formerly w/out the static
 
 // root:  /updateInt, /contrast
 static const char SERVER_PAGE_OTA[] PROGMEM    = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";      //const char* SERVER_PAGE_OTA = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
@@ -9,9 +9,6 @@ static const char SERVER_PAGE_ROOT_1[] PROGMEM = "<head><meta name='viewport' co
 static const char SERVER_PAGE_ROOT_2[] PROGMEM = "<b>Refresh Interval:</b> &nbsp; <input type='text' name='updateInt' value='";
 static const char SERVER_PAGE_ROOT_3[] PROGMEM = "' maxlength='3' size='5'>&nbsp;<i>seconds</i><br> <b>Display Contrast:</b> &nbsp; <input type='text' name='contrast' value='";
 static const char SERVER_PAGE_ROOT_4[] PROGMEM = "' maxlength='3' size='5'>&nbsp;<i>%</i><br><input type='submit' value='Save Settings'><br> </form><br><a href='/advanced'><button>Advanced Settings</button></a> <br>FW v";
-
-
-
 
 static const char SERVER_PAGE_SAVE_ERROR[] PROGMEM      = "Invalid setting values! \n\t- Update interval must be >= 30 seconds.\n\t= Contrast must be 1-100%";  // \n\t- Server ID must be exactly 32 characters.
 static const char SERVER_PAGE_SAVE_FORM_ERROR[] PROGMEM = "Form submit error";
@@ -74,6 +71,7 @@ void HTTP_server_init() {
   });
 
   server.on("/update", HTTP_POST, []() {
+    oled_FW_update_msg();
     server.sendHeader("Connection", "close");
     server.sendHeader("Access-Control-Allow-Origin", "*");
     server.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");    //erver.send_P(200, "text/text", (Update.hasError()) ? SERVER_PAGE_OTA_FAIL : SERVER_PAGE_OTA_SUCCESS);
@@ -118,8 +116,24 @@ void h_test() {
    //  strcpy_P(faction, (char *)pgm_read_dword(&(STR_TABLE_FACTIONS[game.faction.T2])));
 
     //String s = String(buf.c_str());
+
     unsigned long hello = BUILD_TIME;
     server.send(200, "text/text", String(hello));
+
+
+/*
+    char mapName[20];// = {' ', ' ', '\0'};
+    strcpy_P(mapName, (char *)pgm_read_dword(&(STR_TABLE_BF1_MAPS[BF1_GAME.map])));
+    mapName[19] = '\0';
+
+    String s = String(BF1_GAME.map) + "..." + String(BF1_GAME.players) + "..." + String(BF1_GAME.playersMax) + "..." + String(BF1_GAME.queue) + "..." + String(BF1_GAME.mode) + "...";
+    s += mapName;
+    strcpy_P(mapName, (char *)pgm_read_dword(&(STR_TABLE_BF1_MODES[BF1_GAME.mode])));
+    s += mapName;
+    server.send(200, "text/text", s);
+    */
+    //server.send(200, "text/text", String(hello));
+
 
   //  String s = BUILD_TIME;
   //server.send(200, "text/text", BUILD_TIME);
@@ -140,15 +154,21 @@ String cb2varS(bool b) {
 void h_root_new() {
   //uint32_t memStart =  system_get_free_heap_size();uint32_t memEnd;unsigned long tStart, tEnd;tStart = millis();
   //TODO: FIX: input['submit'] {width:90%;}
- String str_frm = F("<html><head><meta name='viewport' content='width=device-width, initial-scale=1'><meta http-equiv='cache-control' content='no-cache'/></head><style>.floating-box{display: inline-block;margin:10px;border:3px solid #73AD21;width:300px;}.st{display:inline-block;width:170px;}.input[type='submit']{width:95%;}</style><h1>NWG WIFI MONITOR</h1><br><form action='/_save' method='POST'><div class='floating-box'><b><u>Global Settings</u></b><br><div class='st'>Display Contrast:</div><input type='text' name='contrast' value='%vCnst%' maxlength='3' size='1'>&nbsp;% [1-100]<div class='st'>Firmware Auto-Update:</div><input type='checkbox' name='fwAU' %efwAU%></div><br><div class='floating-box'><b><u>Enabled Widgets</u></b><br><input type='checkbox' name='e_BF4_sb' %ebf4sb%>BF4 Scoreboard<br><input type='checkbox' name='e_BF4_st' %ebf4st%>BF4 Stats<br><input type='checkbox' name='e_w-c' %ewc%>Weather - Now<br><input type='checkbox' name='e_w-f' %ewf%>Weather - Forecast<br><br>Scroll Speed:&nbsp; <input type='textbox' value='%vSS%' name='SS' maxlength='3' size='1'>&nbsp; seconds&nbsp;&nbsp;[1-999]<br><a href='/bf4-edit'>Customize BF4</a><br><a href='weather-edit'>Customize Weather</a><br></div><br><input type='submit' value='Save Settings'><br></form><a href='/admin'>Admin Tools/Help</a><br><h5>FW %fwF%</h5></html>");
+
+ /*
+ String str_frm = F("<html><head><meta name='viewport' content='width=device-width, initial-scale=1'><meta http-equiv='cache-control' content='no-cache'/></head><style>.floating-box{display: inline-block;margin:10px;border:3px solid #73AD21;width:300px;}.st{display:inline-block;width:170px;}.input[type='submit']{width:95%;}</style><h1>NWG WIFI MONITOR</h1><br><form action='/_save' method='POST'><div class='floating-box'><b><u>Global Settings</u></b><br><div class='st'>Display Contrast:</div><input type='text' name='contrast' value='%vCnst%' maxlength='3' size='1'>&nbsp;% [1-100]<div class='st'>Firmware Auto-Update:</div><input type='checkbox' name='fwAU' %efwAU%></div><br><div class='floating-box'><b><u>Enabled Widgets</u></b><br><input type='checkbox' name='e_BF4_sb' %ebf4sb%>BF4 Scoreboard<br><input type='checkbox' name='e_BF4_st' %ebf4st%>BF4 Stats<br><input type='checkbox' name='e_BF1' %ebf1%>BF1 Server Info<br><input type='checkbox' name='e_w-c' %ewc%>Weather - Now<br><input type='checkbox' name='e_w-f' %ewf%>Weather - Forecast<br><br>Scroll Speed:&nbsp; <input type='textbox' value='%vSS%' name='SS' maxlength='3' size='1'>&nbsp; seconds&nbsp;&nbsp;[1-999]<br><a href='/bf4-edit'>Customize BF4</a><br><a href='weather-edit'>Customize Weather</a><br></div><br><input type='submit' value='Save Settings'><br></form><a href='/admin'>Admin Tools/Help</a><br><h5>FW %fwF%</h5></html>");
+*/
+
+String str_frm = F("<html><head><meta name='viewport' content='width=device-width, initial-scale=1'><meta http-equiv='cache-control' content='no-cache'/></head><style>.floating-box{display: inline-block;margin:10px;border:3px solid #73AD21;width:300px;}.st{display:inline-block;width:170px;} .input[type='submit']{width:95%;} .wh{padding-bottom:10px;}</style> <h1>NWG WIFI MONITOR</h1><br><form action='/_save' method='POST'><div class='floating-box'><b><u>Global Settings</u></b><br><div class='st'>Display Contrast:</div><input type='text' name='contrast' value='%vCnst%' maxlength='3' size='1'>&nbsp;% [1-100]<div class='st'>Firmware Auto-Update:</div><input type='checkbox' name='fwAU' %efwAU%><div class='st'>Widget Scroll Speed:</div><input type='textbox' value='%vSS%' name='SS' maxlength='3' size='1'>&nbsp; sec.</div><br><div class='floating-box'><div class='wh'><b><u>Enabled Widgets</u></b></div><div class='wh'><b>BF4</b> - <a href='/bf4-edit'>config</a><br><input type='checkbox' name='e_BF4_sb' %ebf4sb%>BF4 Scoreboard<br><input type='checkbox' name='e_BF4_st' %ebf4st%>BF4 Stats</div><div class='wh'><b>BF1</b><br> <input type='checkbox' name='e_BF1' %ebf1%>BF1 Server Info</div><div class='wh'><b>Weather</b> - <a href='/weather-edit'>config</a><br><input type='checkbox' name='e_w-c' %ewc%>Weather - Now<br><input type='checkbox' name='e_w-f' %ewf%>Weather - Forecast</div></div><br><input type='submit' value='Save Settings'><br></form><a href='/admin'>Admin Tools/Help</a><br><h5>FW %fwF%</h5></html>");
 
   str_frm.replace("%vCnst%",  String(constrain(map(cfg_n.contrast, 1,255,1,101), 1, 100)));               // display contrast (text)
   str_frm.replace("%efwAU%",  cb2varS(_MB(M_FW_AUTOUPDATE_EN)));     // FW auto-update (cb)
   str_frm.replace("%ebf4sb%", cb2varS(_MB(M_DSP_BF4_GAME_EN)));      // BF4 MODULE (cb)
   str_frm.replace("%ebf4st%", cb2varS(_MB(M_DSP_BF4_STATS_EN)));     // BF4 STATS MODULE (cb)
+  str_frm.replace("%ebf1%",   cb2varS(_MB(M_DSP_BF1)));               // BF1 SERVER INFO (cb)
   str_frm.replace("%ewc%",    cb2varS(_MB(M_DSP_WEATHER_CUR_EN)));   // WEATHER CURRENT MODULE (cb)
   str_frm.replace("%ewf%",    cb2varS(_MB(M_DSP_WEATHER_FRCST_EN))); // WEATHER FORECAST MODULE (cb)
-  str_frm.replace("%vSS%",    String(cfg_n.scrollSpeed/1000));            // MODULE SCROLL SPEED (text)
+  str_frm.replace("%vSS%",    String(cfg_n.scrollSpeed/1000));       // MODULE SCROLL SPEED (text)
   str_frm.replace("%fwF%",    String(FIRMWARE_VERSION));
 
   server.sendContent(str_frm);  //memEnd = system_get_free_heap_size();  tEnd = millis();  server.sendContent( String(memStart-memEnd) + "<br>" + String(tEnd-tStart));
@@ -159,7 +179,7 @@ void h_root_new() {
 void h_root_new_save() {
   // ERROR CHECKS
   // ... 1+ modules enabled; contrast value 1-100; scroll speed > 0
-  if ((server.arg("e_BF4_sb").length() == 0) && (server.arg("e_BF4_st").length() == 0) && (server.arg("e_w-c").length() == 0) && (server.arg("e_w-f").length() == 0)) {      server.send(200, "text/text", F("ERROR: at least one widget must be enabled")); return;  }
+  if ((server.arg("e_BF4_sb").length() == 0) && (server.arg("e_BF4_st").length() == 0) && (server.arg("e_w-c").length() == 0) && (server.arg("e_w-f").length() == 0) && (server.arg("e_BF1").length() == 0) ) {      server.send(200, "text/text", F("ERROR: at least one widget must be enabled")); return;  }
   uint8_t tContrast = server.arg("contrast").toInt();
   if(tContrast > 100 || tContrast <= 0) {    server.send(200, "text/text", F("ERROR: contrast value must be between 1 and 100")); return;  }
   if(server.arg("SS").toInt() <= 0) {    server.send(200, "text/text", F("ERROR: scroll speed must be greater than 0 seconds")); return;  }
@@ -169,10 +189,17 @@ void h_root_new_save() {
   // TODO: NEEDS FIXED. OVERWRITTING SOME SHIT??
   cfg_n.options= B00000000 | _BV(B_DSP_BF4_AUTO_HIDE);
 
+  // FW auto-update
   if(server.arg("fwAU").length() > 0)      cfg_n.options |= _BV(B_FW_AUTOUPDATE_EN);      else cfg_n.options &= 0xFF - _BV(B_FW_AUTOUPDATE_EN);
+  // BF4 live score board
   if(server.arg("e_BF4_sb").length() > 0)  cfg_n.options |= _BV(B_DSP_BF4_GAME_EN);       else cfg_n.options &= 0xFF - _BV(B_DSP_BF4_GAME_EN);
+  // BF4 stats
   if(server.arg("e_BF4_st").length() > 0)  cfg_n.options |= _BV(B_DSP_BF4_STATS_EN);      else cfg_n.options &= 0xFF - _BV(B_DSP_BF4_STATS_EN);
+  // BF1 server info
+  if(server.arg("e_BF1").length() > 0)     cfg_n.options |= _BV(B_DSP_BF1);               else cfg_n.options &= 0xFF - _BV(B_DSP_BF1);
+  // weather - current conditions
   if(server.arg("e_w-c").length() > 0)     cfg_n.options |= _BV(B_DSP_WEATHER_CUR_EN);    else cfg_n.options &= 0xFF - _BV(B_DSP_WEATHER_CUR_EN);
+  // weather - forecast
   if(server.arg("e_w-f").length() > 0)     cfg_n.options |= _BV(B_DSP_WEATHER_FRCST_EN);  else cfg_n.options &= 0xFF - _BV(B_DSP_WEATHER_FRCST_EN);
   cfg_n.scrollSpeed = (unsigned int)server.arg("SS").toInt()*1000;
 

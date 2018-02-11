@@ -18,9 +18,10 @@ void bf4_computeStats() {
   } else stats.kd.team = TEAM_NA;
 }
 
-void weather_update() {
+/*void weather_update() {
   Serial.println(F("Updating weather..."));
   timeElapsed_weather = 0;
+
   WundergroundClient wunderground(&weather, false);
 
 // use random API key to spread out API call rate
@@ -36,7 +37,7 @@ void weather_update() {
         break;
     break;
   }
-}
+}*/
 
 
 void bf4_update() {
@@ -51,7 +52,7 @@ void bf4_update() {
   }
 
   JsonStreamingParser parser;
-  ExampleListener listener = ExampleListener(&game);
+  parser_BF4 listener = parser_BF4(&game);  //ExampleListener listener = ExampleListener(&game);
 
   const char * jsonHOST = "keeper.battlelog.com";   //JSON_HOST;
   const char * localBF4ServerID =  cfg_n.bf4.serverID;     //settings.serverID;   //const char * localBF4ServerID =  BF4ServerID.c_str();  //JSON_URL;
