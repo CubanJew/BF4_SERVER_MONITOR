@@ -307,7 +307,9 @@ void h_weather_save(){
         strncpy(cfg_n.weather.zipzmw, server.arg("loc").c_str(), sizeof(cfg_n.weather.zipzmw));
         cfg_n.weather.zipzmw[sizeof(cfg_n.weather.zipzmw)-1] = '\0';   // ZNW takes up full length
       }
+    timeElapsed_weather = REFRESH_WEATHER;
   }
+
 
   server.send_P(200, "text/html",SERVER_PAGE_SAVE_SUCCESS);
 

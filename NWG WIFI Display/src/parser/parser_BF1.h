@@ -17,6 +17,14 @@
 #define   BF1_TEAM_1    12
 #define   BF1_TEAM_2    13
 
+
+#define DEBUG 1
+#ifdef DEBUG
+  #define DEBUG_P(x)  Serial.println(x)
+#else
+  #define DEBUG_P(x)
+#endif
+
 class parser_BF1: public JsonListener {
 
   public:

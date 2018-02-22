@@ -45,7 +45,7 @@
 #define REFRESH_FW_AUTO_UPDATE  86400000  // daily
 
 // -----------------------------------
-enum WEATHER_MODE {US, CA, AUTO};
+enum WEATHER_MODE {US=0, CA=1, AUTO=2};
 
 typedef struct CFG_bf4 CFR_bf4;
 typedef struct CFG_weather CFG_weather;

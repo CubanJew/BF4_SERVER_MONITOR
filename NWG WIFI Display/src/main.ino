@@ -22,6 +22,10 @@ BF1_GAME_DATA BF1_GAME; // BF1 game data
 Weather weather;  // Weather    // TODO: LEGACY (DELETE) ??
 int curFrm = -1; // 0; // current Widget frame displayed
 
+
+//  TODO:
+//  - MERGE weather doUpdate() & update()
+
 void setup(void) {
   pinMode(13, INPUT); // used as input to safe mode. short "SW" pins on PCB
 
@@ -56,7 +60,7 @@ void configModeCallback (WiFiManager *myWiFiManager) {
   oled_draw_noWiFiNetwork(myWiFiManager->getConfigPortalSSID());
 }
 
-// checks whether target frame # is enabled
+// checks whether target frame # is enabled. Does NOT do error checking!
 bool isFrameEn(int fNum) {
   switch(fNum) {
     case 0:   return (_MB(M_DSP_BF4_AUTO_HIDE) && _MB(M_DSP_BF4_GAME_EN)  && game.players == 0) ? false : _MB(M_DSP_BF4_GAME_EN);         //if (_MB(M_DSP_BF4_AUTO_HIDE) && _MB(M_DSP_BF4_GAME_EN) && game.players == 0) return false;         //else return _MB(M_DSP_BF4_GAME_EN);

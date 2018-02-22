@@ -14,7 +14,98 @@ WEATHER ZMV LOOKUP:   http://autocomplete.wunderground.com/aq?query=canada&c=CA
 https://www.wunderground.com/weather/api/d/docs?d=autocomplete-api#city_api_request
 */
 
+WundergroundClient::WundergroundClient(Weather *_w, elapsedMillis *timer) {
+  w = _w;
+  _timer = timer;
+}
 
+void WundergroundClient::update() {
+  Serial.println(F("Updating weather..."));
+  _timer->operator=(0);
+  // use random API key to spread out API call rate
+  String apiKey = "/api/";
+  switch (random(0,3)) {
+    case 0:
+        apiKey += "e2a7dc6f79c3cc0b";    //wunderground.update("e2a7dc6f79c3cc0b");
+        break;
+    case 1:
+        apiKey += "2965f06f6aa56310";    //wunderground.update("2965f06f6aa56310");
+        break;
+    case 2:
+        apiKey += "a82c1f435e08c1f1";    //wunderground.update("a82c1f435e08c1f1");
+        break;
+  }
+  apiKey += "/conditions/forecast/q/";
+  // Assemble location param based on US zipcode, CA zmw, or auto.
+  switch (cfg_n.weather.mode) {
+    case US:
+      apiKey += String(cfg_n.weather.zipzmw);
+      break;
+    case CA:
+      apiKey += String("zmw:") + String(cfg_n.weather.zipzmw);
+      break;
+    case AUTO:
+      apiKey += "autoip";
+      break;    // for some reason w/o break statements, AUTOIP gets appended to CA for CA....? When enum vals not defined?
+  }
+  DEBUG_P(cfg_n.weather.mode);
+  /*if (cfg_n.weather.mode == US)
+      apiKey += String(cfg_n.weather.zipzmw);
+  else if(cfg_n.weather.mode == CA)
+      apiKey += "zmw:" + String(cfg_n.weather.zipzmw);
+  else if(cfg_n.weather.mode == AUTO)
+      apiKey += "autoip";*/
+
+  apiKey += ".json";
+  DEBUG_P(apiKey);
+  doUpdate(apiKey);  //doUpdate("/api/" + apiKey + "/conditions/forecast/q/autoip.json");  //doUpdate("/api/" + apiKey + "/conditions/q/autoip.json");  doUpdate("/api/" + apiKey + "/forecast/q/autoip.json");
+}
+
+void WundergroundClient::doUpdate(String url) {
+  JsonStreamingParser parser;
+  parser.setListener(this);
+  WiFiClient client;
+  uint8_t connectAttempts = 0;
+  while(!client.connect("api.wunderground.com", 80)) {    //if (!client.connect("api.wunderground.com", 80)) {
+    delay(100);
+    if(++connectAttempts >= 20) {
+      DEBUG_P("WEATHER FAILED ON CONNECT");
+      return;
+    }
+  }
+
+  // This will send the request to the server
+  client.print(String("GET ") + url + " HTTP/1.1\r\n" +
+               "Host: api.wunderground.com\r\n" +
+               "Connection: close\r\n\r\n");
+  int retryCounter = 0;
+  while(!client.available()) {
+    delay(1000);
+    retryCounter++;
+    if (retryCounter > 10) {
+      DEBUG_P("WEATHER AVAILABLE TIMEOUT");
+      return;
+    }
+  }
+
+  int pos = 0;
+  boolean isBody = false;
+  char c;
+
+  int size = 0;
+  client.setNoDelay(false);
+  while(client.connected()) {
+    while((size = client.available()) > 0) {
+      c = client.read();
+      if (c == '{' || c == '[') {
+        isBody = true;
+      }
+      if (isBody) {
+        parser.parse(c);
+      }
+    }
+  }
+}
 
 // WUNDERGROUND API; max: 500/day;  10/min
 void WundergroundClient::key(String key) {
@@ -183,74 +274,7 @@ String getMeteoconIcon(String iconText) {
   if (iconText == "nt_sunny") return "4";
   if (iconText == "nt_tstorms") return "&";
 }
-WundergroundClient::WundergroundClient(Weather *_w, elapsedMillis *timer) {
-  w = _w;
-  _timer = timer;
-}
-void WundergroundClient::update() {
-  Serial.println(F("Updating weather..."));
-  _timer->operator=(0);
-  // use random API key to spread out API call rate
-  String apiKey;
-    switch (random(0,3)) {
-      case 0:
-          apiKey = "e2a7dc6f79c3cc0b";    //wunderground.update("e2a7dc6f79c3cc0b");
-          break;
-      case 1:
-          apiKey = "2965f06f6aa56310";    //wunderground.update("2965f06f6aa56310");
-          break;
-      case 2:
-          apiKey = "a82c1f435e08c1f1";    //wunderground.update("a82c1f435e08c1f1");
-          break;
-    }
-  doUpdate("/api/" + apiKey + "/conditions/forecast/q/autoip.json");  //doUpdate("/api/" + apiKey + "/conditions/q/autoip.json");  doUpdate("/api/" + apiKey + "/forecast/q/autoip.json");
-}
 
-void WundergroundClient::doUpdate(String url) {
-  JsonStreamingParser parser;
-  parser.setListener(this);
-  WiFiClient client;
-  uint8_t connectAttempts = 0;
-  while(!client.connect("api.wunderground.com", 80)) {    //if (!client.connect("api.wunderground.com", 80)) {
-    delay(100);
-    if(++connectAttempts >= 10) {
-      Serial.println(F("WUNDERGROUND connection failed"));
-      return;
-    }
-  }
-
-  // This will send the request to the server
-  client.print(String("GET ") + url + " HTTP/1.1\r\n" +
-               "Host: api.wunderground.com\r\n" +
-               "Connection: close\r\n\r\n");
-  int retryCounter = 0;
-  while(!client.available()) {
-    delay(1000);
-    retryCounter++;
-    if (retryCounter > 10) {
-      Serial.println(F("wunderground timeout"));
-      return;
-    }
-  }
-
-  int pos = 0;
-  boolean isBody = false;
-  char c;
-
-  int size = 0;
-  client.setNoDelay(false);
-  while(client.connected()) {
-    while((size = client.available()) > 0) {
-      c = client.read();
-      if (c == '{' || c == '[') {
-        isBody = true;
-      }
-      if (isBody) {
-        parser.parse(c);
-      }
-    }
-  }
-}
 void WundergroundClient::whitespace(char c) {}
 void WundergroundClient::startDocument() {OBJECT_DEPTH_INDEX=0;}
 void WundergroundClient::endArray() {}
