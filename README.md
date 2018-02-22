@@ -13,15 +13,17 @@ Features:
 
 Version History:
 
-********* v1.2.31 (02/11/18) *********
+********* v1.2.31 (02/22/18) *********
 - Rename parser filenames & improved structure & organization
-- Fixed bug with data update check bitwise logic
 - Added BF1 server info display widget
 - Economized weather API calls (current conditions + forecast json data at once)
 - Fixed bug where if no valid data was found for the only enabled widget, unit would crash and go in an infite crash/reboot pattern.
 - Lowered default contrast ratio
-- Tweaked web control panel
+- Tweaked web control panel display layout
 - Added safe mode boot option (short "SW" pins on PCB prior to power-up). The only feature enabled in in safe mode is the HTTP control panel. All display widgets and outside web connections are disabled.
+- Bug fix: auto-location was always used for weather, regardless of user setting
+- Bug fix:  data update check bitwise logic
+- Added instant weather data refresh on web setting change
 
 ********* v1.2.30 (10/07/17) *********
 - Introduced display ‘widgets’ concept. 
