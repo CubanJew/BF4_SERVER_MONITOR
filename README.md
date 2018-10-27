@@ -1,17 +1,23 @@
 # BF4_SERVER_MONITOR
 
-A standalone compact screen that connects to your home WiFi network and displays Battlefield 4 server information in near-real time (utilizing BattleLog live scoreboard JSON feed) and weather information (utilizing wunderground API)
+A standalone compact screen that connects to your home WiFi network and displays Battlefield 1 & Battlefield 4 server information, and the weather in near-real time.
+
+Visit here for user manual: http://cubanjew.a2hosted.com/WIFI_OLED/DOCS/WIFI_OLED_Manual_Rev.2.pdf
 
 Features:
-- Pick and choose what display widgets you want shown on the unit. Display widgets include: BF4 server live scoreboard, BF4 server team stats, current weather conditions, and 3-day weather forecast lookahead.
+- Pick and choose what display widgets you want shown on the unit. Display widgets include: BF4 server live scoreboard, BF4 server team stats, Battlefield 1 server stats, current weather conditions, and 3-day weather forecast lookahead.
 - Web Control Panel allows you to customize display widgets and change global settings through your browser.
-- Ability to update firmware through your web browser (OTA), without the need for any special hardware tools. This provides flexibility for rolling out new features, or repurposing the unit for a totally different use.
+- Ability to update firmware through your web browser (OTA), in addition to an automatic update engine in the background.
 - 3 spare GPIOs reserved for future hardware interfaces. 
 - Dynamic WIFI Manager - creates WIFI Access Point to allow configuring to your home Wi-Fi network
 
 
 
 Version History:
+
+
+********* v1.2.31 (10/22/18) *********
+- Updated web link to revised manual & added additional diagnostics info.
 
 ********* v1.2.31 (02/22/18) *********
 - Rename parser filenames & improved structure & organization
