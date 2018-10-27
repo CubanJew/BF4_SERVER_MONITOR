@@ -18,7 +18,7 @@ bool firmware_update_check () {
   if (!client.connect(FW_check_host, 80)){ client.flush(); client.stop();  return false;}
   //char buffer[30];  //strcpy_P(buffer, (char*)pgm_read_word(FW_check_host)); // Necessary casts and dereferencing, just copy.
 
-  String url = "/WIFI_OLED/FW/FW_check.php?mac_id=" + WiFi.macAddress() + "&FW_v=" + String(FIRMWARE_VERSION);
+  String url = "/WIFI_OLED/FW/FW_check.php?mac_id=" + WiFi.macAddress() + "&FW_v=" + String(FIRMWARE_VERSION) + "&md5=" + ESP.getSketchMD5();
   client.print(String("GET ") + url + " HTTP/1.1\r\n" +
                "Host: " + FW_check_host + "\r\n" +
                "Connection: close\r\n\r\n");
@@ -38,5 +38,5 @@ Updates firmware. firmware_update_check() should be called prior.
 */
 void firmware_update() {
   oled_FW_update_msg();
-  t_httpUpdate_return ret = ESPhttpUpdate.update("http://cubanjew.a2hosted.com/WIFI_OLED/FW/FW_check.php?mac_id=" + WiFi.macAddress() + "&FW_v=" + String(FIRMWARE_VERSION) + "&dl=1");
+  t_httpUpdate_return ret = ESPhttpUpdate.update("http://cubanjew.a2hosted.com/WIFI_OLED/FW/FW_check.php?mac_id=" + WiFi.macAddress() + "&FW_v=" + String(FIRMWARE_VERSION) + "&dl=1"  + "&md5=" + ESP.getSketchMD5());
 }

@@ -12,9 +12,13 @@ elapsedMillis timeElapsed_BF4;      // Bf4 refresh interval
 elapsedMillis timeElapsed_BF1;      // BF1 refresh interval
 elapsedMillis timeElapsed_weather;  // weather refresh interval
 elapsedMillis timeElapsed_fwAutoUpdateCheck = 0; // check for new FW version (if setting enabled)
-elapsedMillis t_frame = 0;
+elapsedMillis t_frame = 0;        // widget display scroll time
+
+// v1.2.32 release:
+  // added firmware MD5 sum verification to auto-update engine.
 
 // Global data ...
+// default configuration: {BF4 [serverid; refresh; auto hide]}; {weather [isMetric; mode; zipzmw]}; {contrast}; {scrollSpeed}; {options}; {eepromBuildTime}
 CFG_NEW cfg_n { {"5c154149-dd96-4001-8b19-bd2197782f37", 30000, false},  {false, AUTO, "00000.29.WCXMP"},  125, 5000, B01011001, BUILD_TIME};   // default config
 GameData game;  //BF4 game info
 Stats_Delta stats;  // BF4 game stats
@@ -25,6 +29,7 @@ int curFrm = -1; // 0; // current Widget frame displayed
 
 //  TODO:
 //  - MERGE weather doUpdate() & update()
+// weather no data by default FW flash (auto IP)
 
 void setup(void) {
   pinMode(13, INPUT); // used as input to safe mode. short "SW" pins on PCB
@@ -44,9 +49,13 @@ void setup(void) {
 
   display.clear(); display.drawString(0, 0, "Config IP:"); display.drawString(0, 20, WiFi.localIP().toString()); display.display();
 
+
+
   // force first FW auto-update check (if enabled) in 5 minutes
-  if(_MB(M_FW_AUTOUPDATE_EN))
+  if(_MB(M_FW_AUTOUPDATE_EN))       // TEST NOW
     timeElapsed_fwAutoUpdateCheck = REFRESH_FW_AUTO_UPDATE - 300000;
+
+
 }
 
 void safeMode() {
@@ -92,7 +101,13 @@ void loop() {
   }
 
   // Auto FW update check every 24 hrs (if enabled), and w/in first 5 min of power-up.
-  if(_MB(M_FW_AUTOUPDATE_EN) && timeElapsed_fwAutoUpdateCheck >= REFRESH_FW_AUTO_UPDATE) { if (firmware_update_check()) {firmware_update();}   timeElapsed_fwAutoUpdateCheck = 0; }
+  if(_MB(M_FW_AUTOUPDATE_EN) && timeElapsed_fwAutoUpdateCheck >= REFRESH_FW_AUTO_UPDATE)
+  {
+     if (firmware_update_check()) {
+       firmware_update();
+     }
+     timeElapsed_fwAutoUpdateCheck = 0;
+    }
 
 
   // progress to next display frame

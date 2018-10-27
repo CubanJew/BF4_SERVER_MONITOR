@@ -1,6 +1,6 @@
 #include "includes/HTTP_SERVER.h"
 
-const char FIRMWARE_VERSION[] PROGMEM   = "1.2.31"; // formerly w/out the static
+const char FIRMWARE_VERSION[] PROGMEM   = "1.2.32"; // formerly w/out the static
 
 // root:  /updateInt, /contrast
 static const char SERVER_PAGE_OTA[] PROGMEM    = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";      //const char* SERVER_PAGE_OTA = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
@@ -320,7 +320,7 @@ void h_weather_save(){
 }
 
 void h_admin(){
-  String str_frm = F("<html><head><meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=no'/><title>Advanced Configuration</title><style>.c{text-align: center;} div,input{padding:5px;} input[type='submit']{width:95%;} body{text-align: center;font-family:verdana;} button{border:0;border-radius:0.3rem;background-color:#1fa3ec;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;} .q{float: right;width: 64px;text-align: right;}</style></head><body><div style='text-align:left;display:inline-block;min-width:260px;'><html><h1>Admin/Help</h1><b>Tools:</b><br><a href='/diag'>Diagnostics Info</a><br><a href='/OTA'>Update Firmware</a><br><br><b>Help:</b><br><a href='http://newworldgamingbf4.enjin.com' target='_blank'>NWG Forums</a><br><a href='https://github.com/CubanJew/BF4_SERVER_MONITOR' target='_blank'>Source Code</a><br>User Manual</html>");
+  String str_frm = F("<html><head><meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=no'/><title>Advanced Configuration</title><style>.c{text-align: center;} div,input{padding:5px;} input[type='submit']{width:95%;} body{text-align: center;font-family:verdana;} button{border:0;border-radius:0.3rem;background-color:#1fa3ec;color:#fff;line-height:2.4rem;font-size:1.2rem;width:100%;} .q{float: right;width: 64px;text-align: right;}</style></head><body><div style='text-align:left;display:inline-block;min-width:260px;'><html><h1>Admin/Help</h1><b>Tools:</b><br><a href='/diag'>Diagnostics Info</a><br><a href='/OTA'>Update Firmware</a><br><br><b>Help:</b><br><a href='http://newworldgamingbf4.enjin.com' target='_blank'>NWG Forums</a><br><a href='https://github.com/CubanJew/BF4_SERVER_MONITOR' target='_blank'>Source Code</a><br><a href='http://cubanjew.a2hosted.com/WIFI_OLED/DOCS/WIFI_OLED_Manual_Rev.2.pdf'>User Manual</a></html>");
   server.send(200, "text/html", str_frm);
 }
 
@@ -451,6 +451,7 @@ void h_diagnostics() {
   page += F("<li>Espressif SDK:\t");		          page += ESP.getSdkVersion();
   page += F("</li><li>Boot Version:\t");			    page += ESP.getBootVersion();
   page += F("</li><li>FW Version:\t");			      page += String(FIRMWARE_VERSION);
+  page += F("</li><li>FW md5 sum:\t");            page += ESP.getSketchMD5();
   page += F("</li><li>FW Build Time:\t");         String s = String(BUILD_TIME);  page += s.substring(2,4) + String("/") + s.substring(4,6) + String("/20") + s.substring(0,2) + String(" ") + s.substring(6,8) + String(":") + s.substring(8,10);
 
   //  page += F("</li><li>Compile Time:\t");
@@ -481,7 +482,16 @@ void h_diagnostics() {
   page += F("<li>RSSI:\t");				                 page += rssi;  page += F(" dBm (");  page += getRSSIQuality(rssi);
   page += F("</li><li>MAC Address:\t");				     page += WiFi.macAddress();
 
+  page += F("</li></ul><b>Real-time Values</b><ul>");
+  page += F("<li>Timer-BF4:\t");                  page += String(timeElapsed_BF4);
+  page += F("<li>Timer-BF1:\t");                  page += String(timeElapsed_BF1);
+  page += F("<li>Timer-WEATHER:\t");              page += String(timeElapsed_weather);
+  page += F("<li>Timer-FW update:\t");            page += String(timeElapsed_fwAutoUpdateCheck);
+  page += F("<li>Timer-FRAME:\t");                page += String(t_frame);
+  page += F("<li>Config Register:\t");            page += String(cfg_n.options);
+
   page += F("</li></ul></html>");
+
   server.send(200, "text/html", page);
 }
 

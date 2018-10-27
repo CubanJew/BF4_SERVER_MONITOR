@@ -97,7 +97,7 @@ void draw_bf4_data();
 void fetch_json();
 void draw_headerFooter();
 
-// "OPTIONS" bit value
+// "OPTIONS" bit value register
 #define _MB(mask) (bool)(mask & cfg_n.options)
 
 #define B_FW_AUTOUPDATE_EN				  0
@@ -109,7 +109,7 @@ void draw_headerFooter();
 #define B_DSP_BF1                   6
 /***
 
-  "options"  REGISTER:   [x] [6] [5] [4] [3] [2] [1] [0]
+  "options"  REGISTER:   [x] [6] [5] [4]   [3] [2] [1] [0]
         [0]: B_FW_AUTOUPDATE_EN:          Firmware auto-update enable
         [1]: B_DSP_BF4_GAME_EN            Display BF4 live scoreboard info
         [2]: B_DSP_BF4_STATS_EN           Display BF4 differential stats
@@ -117,6 +117,7 @@ void draw_headerFooter();
         [4]: B_DSP_WEATHER_FRCST_EN       Display weather forecast
         [5]: B_DSP_BF4_AUTO_HIDE          Auto-hide bf4 display if server empty
         [6]: B_DSP_BF1                    Display BF1 server info
+        [7]:  - SPARE -
         SETTING:
         	        Clear:	^= _BV(B_FW_AUTOUPDATE_EN)
         	        Set:	|= _BV(B_FW_AUTOUPDATE_EN)
